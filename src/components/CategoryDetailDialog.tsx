@@ -7,8 +7,6 @@ import {
 import { Transaction } from '../lib/supabase';
 import { TransactionTable } from './TransactionTable';
 import { formatCurrency } from '../lib/transactionUtils';
-import { X } from 'lucide-react';
-import { Button } from './ui/button';
 
 interface CategoryDetailDialogProps {
   open: boolean;
