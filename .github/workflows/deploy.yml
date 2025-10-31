@@ -33,7 +33,7 @@ jobs:
       - name: Set Vite base for Pages
         # Set BASE to "/<repo-name>/" for username.github.io/<repo-name>
         # For username.github.io root sites, leave as "/"
-        run: echo "GITHUB_PAGES_BASE=${{ vars.GITHUB_PAGES_BASE || '/' }}" >> $GITHUB_ENV
+        run: echo "VITE_BASE_PATH=${{ vars.VITE_BASE_PATH || '/' }}" >> $GITHUB_ENV
 
       - name: Build
         run: npm run build

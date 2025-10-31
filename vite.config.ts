@@ -4,8 +4,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-  // For GitHub Pages deployments set GITHUB_PAGES_BASE to "/<repo-name>/"
-  base: process.env.GITHUB_PAGES_BASE || '/',
+  // For GitHub Pages deployments set VITE_BASE_PATH to "/<repo-name>/"
+  base: process.env.VITE_BASE_PATH || '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
