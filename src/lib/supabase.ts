@@ -14,4 +14,5 @@ export interface Transaction {
   category: string;
   account: string;
   created_at: string;
+  is_reimbursement?: boolean; // True if this credit is a reimbursement, not income
 }

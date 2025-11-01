@@ -29,6 +29,8 @@ import {
   SelectValue,
 } from './ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { CreditsManagement } from './CreditsManagement';
 
 export function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -46,7 +48,8 @@ export function Dashboard() {
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .order('id', { ascending: false });
 
       if (error) throw error;
       setTransactions(data || []);
@@ -123,10 +126,15 @@ export function Dashboard() {
       )
     : [];
 
+  // Calculate reimbursements for this specific category
+  const categoryReimbursements = filteredTransactions
+    .filter(t => t.type === 'Credit' && t.is_reimbursement && t.category === selectedCategory)
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+
   const categoryTotal = categoryTransactions.reduce(
     (sum, t) => sum + Number(t.amount),
     0
-  );
+  ) - categoryReimbursements;
 
   if (loading) {
     return (
@@ -144,20 +152,40 @@ export function Dashboard() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">Expense Dashboard</h1>
             <p className="text-zinc-400">Track your spending and financial insights</p>
           </div>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-full sm:w-[220px] bg-black border-zinc-800 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-black border-zinc-800 text-white">
-              <SelectItem value="all">All Months</SelectItem>
-              {availableMonths.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {getMonthLabel(month)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
+
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="bg-black border border-zinc-800">
+            <TabsTrigger 
+              value="overview" 
+              className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
+            >
+              Overview
+            </TabsTrigger>
+            <TabsTrigger 
+              value="credits" 
+              className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
+            >
+              Manage Credits
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6 sm:space-y-8 mt-6">
+            <div className="flex justify-end">
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-full sm:w-[220px] bg-black border-zinc-800 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-zinc-800 text-white">
+                  <SelectItem value="all">All Months</SelectItem>
+                  {availableMonths.map((month) => (
+                    <SelectItem key={month} value={month}>
+                      {getMonthLabel(month)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
@@ -234,6 +262,15 @@ export function Dashboard() {
             <TransactionTable transactions={filteredTransactions.slice(0, 20)} />
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="credits" className="mt-6">
+            <CreditsManagement 
+              transactions={transactions} 
+              onUpdate={fetchTransactions}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       <CategoryDetailDialog
